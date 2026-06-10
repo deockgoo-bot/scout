@@ -31,11 +31,12 @@ def format_message(items, date_str):
     icons = {"github": "⭐", "hn": "🔶", "geeknews": "🇰🇷", "reddit": "💬"}
     labels = {"github": "GitHub", "hn": "HN", "geeknews": "GeekNews"}
 
+    best = max(items, key=lambda x: x.get("score", 0))
+
     greeting = random.choice(GREETINGS)
     lines = [f"{greeting}\n\n📰 데일리 브리핑 ({date_str})\n"]
     for i, item in enumerate(items, 1):
         src = item["source"]
-        icon = icons.get(src, "•")
         if src == "reddit":
             label = f"Reddit·{item.get('subreddit', '')}"
         else:
@@ -43,10 +44,14 @@ def format_message(items, date_str):
 
         title = item["title"][:80]
         url = item["url"]
-        ko = translate(title) if item["source"] != "geeknews" else ""
-        line = f"{i}. [{label}] {title}"
+        ko = translate(title) if src != "geeknews" else ""
+
+        is_best = item is best
+        title_str = f"<b>{title}</b>" if is_best else title
+        prefix = "🏆 " if is_best else ""
+        line = f"{i}. {prefix}[{label}] {title_str}"
         if ko and ko.lower() != title.lower():
-            line += f"\n   <b>{ko}</b>"
+            line += f"\n   <b>{ko}</b>" if is_best else f"\n   {ko}"
         line += f"\n   {url}"
         lines.append(line + "\n")
 
