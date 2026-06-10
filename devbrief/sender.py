@@ -44,7 +44,7 @@ def format_message(items, date_str):
         title = item["title"][:80]
         url = item["url"]
         ko = translate(title) if item["source"] != "geeknews" else ""
-        line = f"{i}. {icon} [{label}] {title}"
+        line = f"{i}. [{label}] {title}"
         if ko and ko.lower() != title.lower():
             line += f"\n   🇰🇷 <b>{ko}</b>"
         line += f"\n   {url}"
