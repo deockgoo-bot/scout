@@ -12,8 +12,8 @@ def translate(text):
             timeout=5,
         )
         data = resp.json()
+        print(f"[translate] raw: {data}")
         result = data["responseData"]["translatedText"]
-        print(f"[translate] '{text[:30]}' → '{result[:30]}'")
         return result or ""
     except Exception as e:
         print(f"[translate] error: {e}")
