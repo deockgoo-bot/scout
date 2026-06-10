@@ -2,6 +2,16 @@ import os
 import random
 from datetime import datetime
 import requests
+from deep_translator import GoogleTranslator
+
+_translator = GoogleTranslator(source="auto", target="ko")
+
+
+def translate(text):
+    try:
+        return _translator.translate(text[:500])
+    except Exception:
+        return ""
 
 GREETINGS = [
     "좋은 아침이에요! 오늘도 좋은 하루 되세요 ☀️",
@@ -28,7 +38,12 @@ def format_message(items, date_str):
 
         title = item["title"][:80]
         url = item["url"]
-        lines.append(f"{i}. {icon} [{label}] {title}\n   {url}\n")
+        ko = translate(title) if item["source"] != "geeknews" else ""
+        line = f"{i}. {icon} [{label}] {title}"
+        if ko and ko.lower() != title.lower():
+            line += f"\n   🇰🇷 {ko}"
+        line += f"\n   {url}"
+        lines.append(line + "\n")
 
     full = "\n".join(lines)
 
