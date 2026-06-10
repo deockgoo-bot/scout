@@ -2,14 +2,18 @@ import os
 import random
 from datetime import datetime
 import requests
-from deep_translator import GoogleTranslator
-
-_translator = GoogleTranslator(source="auto", target="ko")
 
 
 def translate(text):
     try:
-        result = _translator.translate(text[:500])
+        resp = requests.get(
+            "https://api.mymemory.translated.net/get",
+            params={"q": text[:500], "langpair": "en|ko"},
+            timeout=5,
+        )
+        data = resp.json()
+        result = data["responseData"]["translatedText"]
+        print(f"[translate] '{text[:30]}' → '{result[:30]}'")
         return result or ""
     except Exception as e:
         print(f"[translate] error: {e}")
@@ -41,7 +45,6 @@ def format_message(items, date_str):
         title = item["title"][:80]
         url = item["url"]
         ko = translate(title) if item["source"] != "geeknews" else ""
-        print(f"[translate] '{title[:30]}' → '{ko[:30] if ko else None}'")
         line = f"{i}. {icon} [{label}] {title}"
         if ko and ko.lower() != title.lower():
             line += f"\n   🇰🇷 {ko}"
