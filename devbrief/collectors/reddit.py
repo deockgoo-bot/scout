@@ -11,6 +11,7 @@ def collect():
             try:
                 url = f"https://www.reddit.com/r/{sub_name}/hot.json?limit={REDDIT_LIMIT_PER_SUB}"
                 resp = requests.get(url, headers=HEADERS, timeout=10)
+                print(f"[reddit] {sub_name} status: {resp.status_code}")
                 resp.raise_for_status()
                 posts = resp.json()["data"]["children"]
                 for post in posts:
