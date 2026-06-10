@@ -1,7 +1,7 @@
 name: DevBrief Daily
 on:
   schedule:
-    - cron: '0 21 * * *'   # UTC 21:00 = KST 06:00
+    - cron: '17 21 * * *'   # UTC 21:17 = KST 06:17 (정각 혼잡 회피)
   workflow_dispatch:
 
 jobs:
