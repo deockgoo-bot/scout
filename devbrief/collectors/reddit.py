@@ -1,4 +1,3 @@
-import time
 import requests
 from config import REDDIT_LIMIT_PER_SUB, REDDIT_SUBREDDITS
 
@@ -7,7 +6,6 @@ HEADERS = {"User-Agent": "devbrief/1.0"}
 
 def collect():
     try:
-        cutoff = time.time() - 86400
         items = []
         for sub_name in REDDIT_SUBREDDITS:
             try:
@@ -17,8 +15,6 @@ def collect():
                 posts = resp.json()["data"]["children"]
                 for post in posts:
                     data = post["data"]
-                    if data.get("created_utc", 0) < cutoff:
-                        continue
                     items.append({
                         "source": "reddit",
                         "title": data["title"],
