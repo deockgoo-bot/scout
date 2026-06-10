@@ -1,36 +1,32 @@
-import os
 import time
-import praw
+import requests
 from config import REDDIT_LIMIT_PER_SUB, REDDIT_SUBREDDITS
+
+HEADERS = {"User-Agent": "devbrief/1.0"}
 
 
 def collect():
     try:
-        reddit = praw.Reddit(
-            client_id=os.environ["REDDIT_CLIENT_ID"],
-            client_secret=os.environ["REDDIT_CLIENT_SECRET"],
-            user_agent="devbrief/1.0",
-        )
         cutoff = time.time() - 86400
         items = []
         for sub_name in REDDIT_SUBREDDITS:
             try:
-                sub = reddit.subreddit(sub_name)
-                count = 0
-                for post in sub.hot(limit=50):
-                    if count >= REDDIT_LIMIT_PER_SUB:
-                        break
-                    if post.created_utc < cutoff:
+                url = f"https://www.reddit.com/r/{sub_name}/hot.json?limit={REDDIT_LIMIT_PER_SUB}"
+                resp = requests.get(url, headers=HEADERS, timeout=10)
+                resp.raise_for_status()
+                posts = resp.json()["data"]["children"]
+                for post in posts:
+                    data = post["data"]
+                    if data.get("created_utc", 0) < cutoff:
                         continue
                     items.append({
                         "source": "reddit",
-                        "title": post.title,
-                        "url": post.url,
-                        "popularity": post.score,
+                        "title": data["title"],
+                        "url": data.get("url", ""),
+                        "popularity": data.get("score", 0),
                         "keyword_hits": 0,
                         "subreddit": sub_name,
                     })
-                    count += 1
             except Exception as e:
                 print(f"[reddit] {sub_name} error: {e}")
         print(f"[reddit] collected {len(items)} items")
