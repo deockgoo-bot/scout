@@ -1,4 +1,6 @@
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
+
+KST = timezone(timedelta(hours=9))
 
 from collectors.github import collect as collect_github
 from collectors.hackernews import collect as collect_hn
@@ -9,7 +11,7 @@ from sender import send
 
 
 def main():
-    today = datetime.now().strftime("%Y-%m-%d %H:%M")
+    today = datetime.now(KST).strftime("%Y-%m-%d %H:%M")
     print(f"[main] DevBrief {today}")
 
     from concurrent.futures import ThreadPoolExecutor
