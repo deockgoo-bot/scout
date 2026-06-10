@@ -9,8 +9,10 @@ _translator = GoogleTranslator(source="auto", target="ko")
 
 def translate(text):
     try:
-        return _translator.translate(text[:500])
-    except Exception:
+        result = _translator.translate(text[:500])
+        return result or ""
+    except Exception as e:
+        print(f"[translate] error: {e}")
         return ""
 
 GREETINGS = [
