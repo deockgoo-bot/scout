@@ -1,7 +1,5 @@
-import requests
+import feedparser
 from config import REDDIT_LIMIT_PER_SUB, REDDIT_SUBREDDITS
-
-HEADERS = {"User-Agent": "devbrief/1.0"}
 
 
 def collect():
@@ -9,21 +7,21 @@ def collect():
         items = []
         for sub_name in REDDIT_SUBREDDITS:
             try:
-                url = f"https://www.reddit.com/r/{sub_name}/hot.json?limit={REDDIT_LIMIT_PER_SUB}"
-                resp = requests.get(url, headers=HEADERS, timeout=10)
-                print(f"[reddit] {sub_name} status: {resp.status_code}")
-                resp.raise_for_status()
-                posts = resp.json()["data"]["children"]
-                for post in posts:
-                    data = post["data"]
+                feed = feedparser.parse(f"https://www.reddit.com/r/{sub_name}/hot/.rss")
+                count = 0
+                for entry in feed.entries:
+                    if count >= REDDIT_LIMIT_PER_SUB:
+                        break
                     items.append({
                         "source": "reddit",
-                        "title": data["title"],
-                        "url": data.get("url", ""),
-                        "popularity": data.get("score", 0),
+                        "title": entry.get("title", ""),
+                        "url": entry.get("link", ""),
+                        "popularity": 0,
                         "keyword_hits": 0,
                         "subreddit": sub_name,
                     })
+                    count += 1
+                print(f"[reddit] {sub_name}: {count} items")
             except Exception as e:
                 print(f"[reddit] {sub_name} error: {e}")
         print(f"[reddit] collected {len(items)} items")
