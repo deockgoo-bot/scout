@@ -21,7 +21,6 @@ def collect():
                         "subreddit": sub_name,
                     })
                     count += 1
-                print(f"[reddit] {sub_name}: {count} items")
             except Exception as e:
                 print(f"[reddit] {sub_name} error: {e}")
         print(f"[reddit] collected {len(items)} items")
