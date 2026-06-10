@@ -33,9 +33,9 @@ def select_top(items):
 
     minimums = {
         "github": GITHUB_MIN,
+        "reddit": REDDIT_MIN,
         "hn": HN_MIN,
         "geeknews": GEEKNEWS_MIN,
-        "reddit": REDDIT_MIN,
     }
 
     selected = []
