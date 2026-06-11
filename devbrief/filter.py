@@ -1,9 +1,22 @@
-from config import KEYWORDS, KEYWORD_BONUS, GITHUB_MIN, HN_MIN, GEEKNEWS_MIN, REDDIT_MIN, TOTAL
+import re
+
+from config import (
+    KEYWORDS_STRONG, KEYWORDS_WEAK, STRONG_BONUS, WEAK_BONUS,
+    GITHUB_MIN, HN_MIN, GEEKNEWS_MIN, REDDIT_MIN, TOTAL,
+)
 
 
-def count_keyword_hits(text):
-    text_lower = text.lower()
-    return sum(1 for kw in KEYWORDS if kw in text_lower)
+def _compile(keywords):
+    # 단어 경계 매칭: "rag"가 "storage"에, "cli"가 "client"에 걸리는 오탐 방지
+    return [re.compile(r"\b" + re.escape(kw) + r"\b", re.IGNORECASE) for kw in keywords]
+
+
+_STRONG_PATTERNS = _compile(KEYWORDS_STRONG)
+_WEAK_PATTERNS = _compile(KEYWORDS_WEAK)
+
+
+def count_hits(text, patterns):
+    return sum(1 for p in patterns if p.search(text))
 
 
 def apply_filter(items):
@@ -11,12 +24,17 @@ def apply_filter(items):
     for item in items:
         if item["source"] == "geeknews":
             item["keyword_hits"] = 1
-        else:
-            hits = count_keyword_hits(item["title"])
-            if hits == 0:
-                continue
-            item["keyword_hits"] = hits
-        item["score"] = item["popularity"] * (1 + item["keyword_hits"] * KEYWORD_BONUS)
+            item["score"] = item["popularity"]
+            result.append(item)
+            continue
+
+        strong = count_hits(item["title"], _STRONG_PATTERNS)
+        weak = count_hits(item["title"], _WEAK_PATTERNS)
+        # 강한 키워드 1개 이상, 또는 약한 키워드 2개 이상이어야 통과
+        if strong == 0 and weak < 2:
+            continue
+        item["keyword_hits"] = strong + weak
+        item["score"] = item["popularity"] * (1 + strong * STRONG_BONUS + weak * WEAK_BONUS)
         result.append(item)
     return result
 
