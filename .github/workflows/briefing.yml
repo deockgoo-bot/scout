@@ -20,7 +20,7 @@ jobs:
         run: |
           AGE=$(( ($(date +%s) - $(git log -1 --format=%ct)) / 86400 ))
           echo "마지막 커밋: ${AGE}일 전"
-          if [ "$AGE" -ge 0 ]; then
+          if [ "$AGE" -ge 30 ]; then
             git config user.name  "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git commit --allow-empty -m "chore: keepalive (schedule 워크플로 유지)"
